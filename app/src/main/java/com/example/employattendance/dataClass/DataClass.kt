@@ -20,12 +20,12 @@ data class EmployeeInfo (                                               var empI
                                                                         var position:String="",//
                                                                         var joining:String="",//
                                                                         var userType:String = "Employee",//
-                                                                        var lastInteractionDate: String = getMondayOfCurrentWeek().toString(),
+                                                                        var lastInteractionDate: String = getMondayOfCurrentWeek(),
                                                                         var workedTime: String = "0",
                                                                         var notification:Boolean = false//
 ){
 
-    constructor() : this("", "", "","", "", "","", "", "","", getMondayOfCurrentWeek().toString(), "",false)
+    constructor() : this("", "", "","", "", "","", "", "","", getMondayOfCurrentWeek(), "",false)
 
 }
 
@@ -51,15 +51,11 @@ data class LeaveApplication(
 )
 
 
-//data class EmployeesRecords(
-//    val empId:String,
-//    var employeeAttendanceRecords: List<AttendanceRecord>
-//)
 
-fun getMondayOfCurrentWeek(): LocalDate {
-    val currentDate = LocalDate.now()
-    val daysUntilMonday = (DayOfWeek.MONDAY.value - currentDate.dayOfWeek.value + 7) % 7
-    return currentDate.minusDays(daysUntilMonday.toLong())
+private fun getMondayOfCurrentWeek(): String {
+    val currentDate = LocalDate.now() // Gets the current date
+    val daysFromMonday = currentDate.dayOfWeek.value - DayOfWeek.MONDAY.value
+    val monday = if (daysFromMonday >= 0) currentDate.minusDays(daysFromMonday.toLong()) else currentDate.minusDays((daysFromMonday + 7).toLong())
+    return monday.toString()
 }
-
 

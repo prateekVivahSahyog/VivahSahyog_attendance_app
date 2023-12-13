@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "500184401378",
-    "project_id": "employattendance",
-    "storage_bucket": "employattendance.appspot.com"
+    "project_number": "1025050815510",
+    "project_id": "checkmate-647df",
+    "storage_bucket": "checkmate-647df.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:500184401378:android:09a268bda29a2000e925bb",
+        "mobilesdk_app_id": "1:1025050815510:android:9bf90392e6baa194205937",
         "android_client_info": {
           "package_name": "com.example.employattendance"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDcYT_ZxYOYs0vJCp49iuqbTzqOj2Br-J0"
+          "current_key": "AIzaSyDpR4Slt2b1i3zP95DvWaltnLdEq5yjzek"
         }
       ],
       "services": {
