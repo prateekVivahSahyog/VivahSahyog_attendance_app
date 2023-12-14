@@ -46,7 +46,6 @@ class CreateUser {
                     val record = it.toObject(EmployeeInfo::class.java)
                     if(record != null){
                         data = record
-//                        Log.d("TAG"," name = ${data.firstName}")
                     }
                 }
                 continuation.resume(data)

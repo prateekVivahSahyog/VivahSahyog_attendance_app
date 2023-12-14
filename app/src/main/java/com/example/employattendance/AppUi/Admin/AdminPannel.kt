@@ -356,7 +356,7 @@ fun DatePicker(onDateSelected: (String) -> Unit) {
                 val formattedDay = String.format("%02d", dayOfMonth)
                 val formattedMonth = String.format("%02d", month + 1)
 
-                selectedDate = "$formattedDay-$formattedMonth-$year"
+                selectedDate = "$year-$formattedMonth-$formattedDay"
                 onDateSelected(selectedDate)
             },
             year,

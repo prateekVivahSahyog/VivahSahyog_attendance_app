@@ -59,7 +59,7 @@ class AdminViewModel() : ViewModel(){
 
 
     val d = Instant.now()
-    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy").withZone(ZoneId.systemDefault())
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
 
 
     private val _selectedDate = MutableLiveData<String>()
@@ -68,10 +68,10 @@ class AdminViewModel() : ViewModel(){
     val attendanceRef = Firebase.firestore.collection("AttendanceRecords")
 
     lateinit var sheet: Sheet
-//    private val EXCEL_SHEET_NAME = " Attendance_${selectedDate.value}"
+
     private var cell: Cell? = null
     val workbook: Workbook = HSSFWorkbook()
-  //  var filename = "Attendance_${selectedDate.value}.xls"
+
 
     init {
         viewModelScope.launch {
@@ -89,11 +89,9 @@ class AdminViewModel() : ViewModel(){
     }
 
 
-
     fun updateDate(new:String){
         _selectedDate.value = new
     }
-
 
     fun fetchEmployees() {
         viewModelScope.launch {
@@ -104,37 +102,25 @@ class AdminViewModel() : ViewModel(){
                 val employeeRecord = document.toObject(EmployeeInfo::class.java)
 
                 val attendanceDocRef =
-                    selectedDate.value?.let {
-                        attendanceRef.document(employeeRecord.empId).collection("Daily").document(
-                            it
-                        )
+                    selectedDate.let {
+                        attendanceRef.document(employeeRecord.empId).collection("Attendance").document(it.value!!)
                     }
-                val attendanceDocument = attendanceDocRef?.get()?.await()
+
+                // Check if the attendance document exists before proceeding
+                val attendanceDocument = attendanceDocRef.get().await()
                 val attendanceRecord = attendanceDocument?.toObject(AttendanceRecord::class.java)
 
+                // Process the data only if attendanceRecord is not null
                 if (attendanceRecord != null) {
                     resultList.add(Info(employeeRecord, attendanceRecord))
-                } else {
-                    val newAttendanceRecord = selectedDate.value?.let {
-                        AttendanceRecord(
-                            it,
-                            day = getDayOfWeekAbbreviated(selectedDate.value!!),
-                            checkIn = "    --/--",
-                            checkOut = "    --/--",
-                            todayTime = "0",
-                            status = "Absent",
-                            action = 0,
-                        )
-                    }
-                    newAttendanceRecord?.let { Info(employeeRecord, it) }
-                        ?.let { resultList.add(it) }
                 }
             }
 
             _employeeList.value = resultList
-            Log.d("TAG", "_employeeList  for ${selectedDate.value}= ${_employeeList.value}")
+            Log.d("TAG", "_employeeList for ${selectedDate}= ${_employeeList.value}")
         }
     }
+
 
     fun createExcelWorkbook(FileName:String) {
         // New Workbook
@@ -281,7 +267,7 @@ class AdminViewModel() : ViewModel(){
             "status" to status
         )
         selectedDate.value?.let {
-            attendanceRef.document(empid).collection("Daily").document(it).update(updated as Map<String, Any>)
+            attendanceRef.document(empid).collection("Attendance").document(it).update(updated as Map<String, Any>)
         }
     }
 

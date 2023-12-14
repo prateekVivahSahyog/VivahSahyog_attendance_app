@@ -82,11 +82,9 @@ import java.util.Calendar
 @Composable
 
 fun Profile(navController: NavHostController,
-                    profile: ProfileViewModel = ProfileViewModel()
+                    profile: ProfileViewModel
 ) {
         var edit by remember { mutableStateOf(false) }
-        var enabled by remember { mutableStateOf(true) }
-        var buttonclicked by remember { mutableStateOf(false) }
 
         // Employee details
         val name by profile.name.observeAsState()
@@ -97,8 +95,7 @@ fun Profile(navController: NavHostController,
         var leaveButton by remember { mutableStateOf(false) }
         var saveVal by remember { mutableIntStateOf(0) }
         var isLeaveDialogOpen by remember { mutableStateOf(false) }
-        var leaveApplication: LeaveApplication? by remember { mutableStateOf(null) }
-        val logOut by profile.logout.observeAsState()
+        val logOut by  remember { mutableStateOf(profile.logout.value) }
         val userType by profile.userType.observeAsState()
 
         val imagePainter: Painter = rememberAsyncImagePainter(model = R.drawable.user)
@@ -112,7 +109,7 @@ fun Profile(navController: NavHostController,
                  saveVal %= 2
         }
 
-        if(logOut == true){
+        if(logOut==true){
                 navController.navigateUp()
         }
 
@@ -249,7 +246,7 @@ fun Profile(navController: NavHostController,
                         Spacer(Modifier.height(30.dp))
 
                         Button(
-                                onClick = {profile.logOut()},
+                                onClick = {profile.logOut() },
                                 Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 50.dp),
                                 shape = RoundedCornerShape(10.dp),
                                 elevation = ButtonDefaults.buttonElevation(10.dp)
@@ -261,6 +258,7 @@ fun Profile(navController: NavHostController,
                                         Text("Log Out")
                                 }
                         }
+
                 }
         }
 }
@@ -291,334 +289,6 @@ private fun EditableText(
                         color = Iris ,fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         }
 }
-
-
-private fun isEmailValid(email: String): Boolean {
-        val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
-        return email.matches(emailPattern.toRegex())
-}
-
-private fun isPhoneNumberValid(phone: String): Boolean {
-        val phonePattern = "[0-9]+((-)?[0-9]+)*"
-        return phone.matches(phonePattern.toRegex()) && phone.length==10
-}
-
-
-//@Preview(showSystemUi = true, showBackground = true)
-//@Composable
-//fun leaveApplication():LeaveApplication{
-//        val openDialog = remember { mutableStateOf(true) }
-//        val textState = remember { mutableStateOf("") }
-//        var fromDate by remember { mutableStateOf("") }
-//        var fromButton by remember { mutableStateOf(false) }
-//        var tillDate by remember { mutableStateOf("") }
-//        var tillButton by remember { mutableStateOf(false) }
-//        val reason by remember { mutableStateOf("") }
-//
-//        val application = LeaveApplication()
-//
-//        LaunchedEffect(tillDate,fromDate,reason){
-//
-//                Log.d("Leave","from($fromDate) - till($tillDate) , reason : $reason")
-//                application.from = fromDate
-//                application.till = tillDate
-//                application.reason = reason
-//
-//        }
-//
-//        if (openDialog.value) {
-//                AlertDialog(
-//                        onDismissRequest = {
-//                                openDialog.value = false
-//                        }, modifier = Modifier,
-//                        title = {
-//                                Text(text = "Leave Application")
-//                        },
-//                        text = {
-//                                Column {
-//                                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-//                                                Button(onClick = { fromButton = true; tillButton = false }) {
-//                                                        Text(if(fromDate=="") "From" else fromDate)
-//                                                }
-//                                                Button(onClick = { tillButton = true; fromButton= false }) {
-//                                                        Text(if(tillDate=="") "Till" else tillDate)
-//                                                }
-//                                        }
-//                                        OutlinedTextField(
-//                                                value = textState.value,
-//                                                onValueChange = { textState.value = it },
-//                                                label = { Text("Reason") }
-//                                        )
-//                                        Spacer(modifier = Modifier.height(16.dp))
-//
-//                                }
-//                        }, shape = RectangleShape,
-//                        confirmButton = {
-//                                Button(
-//                                        onClick = {
-//                                                openDialog.value = false
-//
-//                                        }
-//                                ) {
-//                                        Text("Confirm")
-//                                }
-//                        },
-//                        dismissButton = {
-//                                Button(
-//                                        onClick = {
-//                                                openDialog.value = false
-//                                        }
-//                                ) {
-//                                        Text("Dismiss")
-//                                }
-//                        }
-//                )
-//
-//                if(fromButton){
-//                        DatePickerEmp{ fromDate = it }
-//                }
-//                if(tillButton){
-//                        DatePickerEmp { tillDate = it }
-//                }
-//        }
-//
-//        return  application
-//}
-
-
-//@Composable
-//fun leaveApplication(): LeaveApplication? {
-//        val openDialog = remember { mutableStateOf(true) }
-//        val textState = remember { mutableStateOf("") }
-//        var fromDate by remember { mutableStateOf("") }
-//        var fromButton by remember { mutableStateOf(false) }
-//        var tillDate by remember { mutableStateOf("") }
-//        var tillButton by remember { mutableStateOf(false) }
-//        val reason by remember { mutableStateOf("") }
-//
-//        var application: LeaveApplication? = null
-//
-//        LaunchedEffect(tillDate, fromDate, reason) {
-//                Log.d("Leave", "from($fromDate) - till($tillDate) , reason : $reason")
-//                application = LeaveApplication(from = fromDate, till = tillDate, reason = reason)
-//        }
-//
-//        if (openDialog.value) {
-//                AlertDialog(
-//                        onDismissRequest = {
-//                                openDialog.value = false
-//                        },
-//                        modifier = Modifier,
-//                        title = {
-//                                Text(text = "Leave Application")
-//                        },
-//                        text = {
-//                                Column {
-//                                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-//                                                Button(onClick = { fromButton = true; tillButton = false }) {
-//                                                        Text(if (fromDate == "") "From" else fromDate)
-//                                                }
-//                                                Button(onClick = { tillButton = true; fromButton = false }) {
-//                                                        Text(if (tillDate == "") "Till" else tillDate)
-//                                                }
-//                                        }
-//                                        OutlinedTextField(
-//                                                value = textState.value,
-//                                                onValueChange = { textState.value = it },
-//                                                label = { Text("Reason") }
-//                                        )
-//                                        Spacer(modifier = Modifier.height(16.dp))
-//                                }
-//                        },
-//                        shape = RectangleShape,
-//                        confirmButton = {
-//                                Button(
-//                                        onClick = {
-//                                                openDialog.value = false
-//                                        }
-//                                ) {
-//                                        Text("Confirm")
-//                                }
-//                        },
-//                        dismissButton = {
-//                                Button(
-//                                        onClick = {
-//                                                openDialog.value = false
-//                                        }
-//                                ) {
-//                                        Text("Dismiss")
-//                                }
-//                        }
-//                )
-//
-//                if (fromButton) {
-//                        DatePickerEmp { fromDate = it }
-//                }
-//                if (tillButton) {
-//                        DatePickerEmp { tillDate = it }
-//                }
-//        }
-//
-//        return if (openDialog.value) null else application
-//}
-
-//@Composable
-//fun leaveApplication(): LeaveApplication? {
-//        val openDialog = remember { mutableStateOf(true) }
-//        val textState = remember { mutableStateOf("") }
-//        var fromDate by remember { mutableStateOf("") }
-//        var fromButton by remember { mutableStateOf(false) }
-//        var tillDate by remember { mutableStateOf("") }
-//        var tillButton by remember { mutableStateOf(false) }
-//        val reason by remember { mutableStateOf("") }
-//
-//        var application: LeaveApplication? = null
-//
-//        LaunchedEffect(tillDate, fromDate, reason) {
-//                Log.d("Leave", "from($fromDate) - till($tillDate) , reason : $reason")
-//                application = LeaveApplication(from = fromDate, till = tillDate, reason = reason)
-//        }
-//
-//        if (openDialog.value) {
-//
-//                AlertDialog(
-//                        onDismissRequest = {
-//                                openDialog.value = false
-//                        },
-//                        modifier = Modifier,
-//                        title = {
-//                                Text(text = "Leave Application")
-//                        },
-//                        text = {
-//                                Column {
-//                                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-//                                                Button(onClick = { fromButton = true; tillButton = false }) {
-//                                                        Text(if (fromDate == "") "From" else fromDate)
-//                                                }
-//                                                Button(onClick = { tillButton = true; fromButton = false }) {
-//                                                        Text(if (tillDate == "") "Till" else tillDate)
-//                                                }
-//                                        }
-//                                        OutlinedTextField(
-//                                                value = textState.value,
-//                                                onValueChange = { textState.value = it },
-//                                                label = { Text("Reason") }
-//                                        )
-//                                        Spacer(modifier = Modifier.height(16.dp))
-//                                }
-//                        },
-//                        shape = RectangleShape,
-//                        confirmButton = {
-//                                Button(
-//                                        onClick = {
-//                                                openDialog.value = false
-//                                        }
-//                                ) {
-//                                        Text("Confirm")
-//                                }
-//                        },
-//                        dismissButton = {
-//                                Button(
-//                                        onClick = {
-//                                                openDialog.value = false
-//                                                application = null
-//                                        }
-//                                ) {
-//                                        Text("Dismiss")
-//                                }
-//                        }
-//                )
-//
-//                if (fromButton) {
-//                        DatePickerEmp { fromDate = it }
-//                }
-//                if (tillButton) {
-//                        DatePickerEmp { tillDate = it }
-//                }
-//        }
-//
-//        return if (openDialog.value) null else application
-//}
-
-@Composable
-fun LeaveApplicationDialog(onConfirmed: (LeaveApplication) -> Unit): LeaveApplication? {
-        var openDialog by remember { mutableStateOf(true) }
-        var textState by remember { mutableStateOf("") }
-        var fromDate by remember { mutableStateOf("") }
-        var fromButton by remember { mutableStateOf(false) }
-        var tillDate by remember { mutableStateOf("") }
-        var tillButton by remember { mutableStateOf(false) }
-        var reason by remember { mutableStateOf("") }
-
-        var application: LeaveApplication? = null
-
-        if (fromButton) {
-                DatePickerEmp { fromDate = it }
-        }
-        if (tillButton) {
-                DatePickerEmp { tillDate = it }
-        }
-
-        if (openDialog) {
-                AlertDialog(
-                        onDismissRequest = {
-                                openDialog = false
-                                application = null
-                        },
-                        modifier = Modifier,
-                        title = {
-                                Text(text = "Leave Application")
-                        },
-                        text = {
-                                Column {
-                                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                                                Button(onClick = { fromButton = true; tillButton = false }) {
-                                                        Text(if (fromDate == "") "From" else fromDate)
-                                                }
-                                                Button(onClick = { tillButton = true; fromButton = false }) {
-                                                        Text(if (tillDate == "") "Till" else tillDate)
-                                                }
-                                        }
-                                        OutlinedTextField(
-                                                value = reason,
-                                                onValueChange = { reason= it ;},
-                                                label = { Text("Reason") }
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                }
-                        },
-                        shape = RectangleShape,
-                        confirmButton = {
-                                Button(
-                                        onClick = {
-                                                openDialog = false
-                                                application = LeaveApplication(from = fromDate, till = tillDate, reason = reason)
-                                                onConfirmed(application!!)
-                                        }
-                                ) {
-                                        Text("Confirm")
-                                }
-                        },
-                        dismissButton = {
-                                Button(
-                                        onClick = {
-                                                openDialog = false
-                                                application = null
-                                        }
-                                ) {
-                                        Text("Dismiss")
-                                }
-                        }
-                )
-
-
-        }
-
-        return application
-}
-
-
-
 
 
 @Composable

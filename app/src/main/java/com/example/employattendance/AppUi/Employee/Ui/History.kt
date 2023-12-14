@@ -33,7 +33,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,42 +58,35 @@ import com.example.employattendance.ui.theme.LightBlue
 import com.example.employattendance.ui.theme.PrimaryTextColor
 
 
+
 @Composable
 fun History(historyViewModel: HistoryViewModel = HistoryViewModel()){
 
     val recordsList by historyViewModel.recordsList
 
+    var selectedYear by remember { mutableStateOf(historyViewModel.selectedYear.value) }
+    var selectedMonth by  remember { mutableStateOf(historyViewModel.selectedMonth.value) }
     var visible by remember { mutableStateOf(false) }
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-
-    historyViewModel.selectedYear.observe(lifecycleOwner) {
+    LaunchedEffect(selectedMonth,selectedYear){
         historyViewModel.fetchAttendanceRecords()
     }
 
-    historyViewModel.selectedMonth.observe(lifecycleOwner) {
-        historyViewModel.fetchAttendanceRecords()
-    }
 
     if (visible) {
-
-        MonthYearPickerDialog(historyViewModel.selectedYear.value!!
-            ,
-            historyViewModel.selectedMonth.value!!
-            ,
-            onDismiss = { y,m->
-                historyViewModel.selectedYear.value = y
-                historyViewModel.selectedMonth.value = m
+        MonthYearPickerDialog(
+            currentYear = selectedYear!!,
+            currentMonth = selectedMonth!!,
+            onDismiss = { y, m ->
+                selectedYear = y
+                selectedMonth = m
+                historyViewModel.updateYearMonth(y,m)
                 visible = false
-
             }
         )
-
     }
 
     Column(Modifier.fillMaxSize().padding(start = 10.dp, end = 10.dp)) {
-
 
         Card(
             Modifier
@@ -123,7 +118,7 @@ fun History(historyViewModel: HistoryViewModel = HistoryViewModel()){
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                         Row(horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "${historyViewModel.months[historyViewModel.selectedMonth.value!!]}  ${historyViewModel.selectedYear.value}",
+                            text = "${historyViewModel.months[selectedMonth!!]}  ${selectedYear}",
                             color = Iris,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold
@@ -140,6 +135,7 @@ fun History(historyViewModel: HistoryViewModel = HistoryViewModel()){
         LazyColumn(Modifier.padding(bottom = 60.dp, top = 7.dp ).fillMaxSize()) {
             items(recordsList){
                // Log.d("TAG","${historyViewModel.recordsList}")
+                Log.d("TAG","Display =  $it")
                     HistoryCard(it)
             }
         }
@@ -150,6 +146,8 @@ fun History(historyViewModel: HistoryViewModel = HistoryViewModel()){
 
 @Composable
 fun HistoryCard(today:AttendanceRecord){
+
+
 
     Card (Modifier.size(367.dp,150.dp).padding(vertical = 7.dp),
         colors = CardDefaults.cardColors(containerColor = History_Page_Light_Green

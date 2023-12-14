@@ -2,10 +2,12 @@ package com.example.employattendance.AppUi.Employee.ViewModels
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.example.employattendance.AppUi.Admin.Info
 import com.example.employattendance.data.CreateUser
 import com.example.employattendance.data.EMPLOYEE_COLLECTION_REF
@@ -85,8 +87,11 @@ class ProfileViewModel:ViewModel() {
     }
 
     fun logOut(){
-        auth.signOut()
         _logout.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+            auth.signOut()
+        }
+
     }
 
     fun save(name: String,mobile:String,designation:String,dept:String){
@@ -129,21 +134,6 @@ class ProfileViewModel:ViewModel() {
             }
         }
 
-    fun refresh(){
-        viewModelScope.launch(Dispatchers.IO) {
-            val info = FetchData()
-
-            withContext(Dispatchers.Main) {
-                _name.value = info.firstName
-                _email.value = info.email
-                _mobile.value = info.number
-                _designation.value = info.position
-                _dept.value = info.department
-            }
-        }
-    }
-
-
     suspend fun FetchData(): EmployeeInfo = suspendCancellableCoroutine { continuation ->
         var data = EmployeeInfo()
         empRef.document(getUserId()).get()
@@ -162,22 +152,6 @@ class ProfileViewModel:ViewModel() {
             }
     }
 
-
-    fun LeaveApply(application: LeaveApplication){
-
-        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        val todayDate = formatter.format(LocalDate.now())
-
-        viewModelScope.launch(Dispatchers.IO) {
-            empRef.document(getUserId()).collection("Leave Application").document(todayDate).set(application).addOnCompleteListener {
-                if (it.isSuccessful)
-                    Log.d("TAG", "leave Submitted")
-
-            }.addOnFailureListener {
-                Log.d("TAG", "leave Submission Unsuccessfully due to ${it.cause}")
-            }
-        }
-    }
 
 }
 

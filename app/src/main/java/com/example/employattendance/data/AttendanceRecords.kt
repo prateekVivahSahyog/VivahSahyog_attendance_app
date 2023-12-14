@@ -26,53 +26,83 @@ class AttendanceRecords() {
         .firestore.collection(EMPLOYEE_COLLECTION_REF)
 
     @SuppressLint("SimpleDateFormat")
-    private val dateFormat = SimpleDateFormat("dd-MM-yyyy")
-    private val todayDate:String = dateFormat.format(Date())
+    val todayDate = SimpleDateFormat("yyyy-MM-dd").format(Date())
 
     var data : AttendanceRecord = AttendanceRecord("","", checkIn = "    --/--", checkOut = "    --/--" , todayTime = "0", status = "Absent", action = 0)
 
-    @SuppressLint("SuspiciousIndentation")
-    fun fetchData(){
 
-        attendanceRef.document(getUserId()).collection("Daily").document(todayDate).get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()) {
-                val record = documentSnapshot.toObject(AttendanceRecord::class.java)
-                if (record != null) {
-                    data = record
-                    Log.d("TAG","data = ${data.date} , ${data.checkIn}")
-                } else {
-                    Log.d("TAG", "Document exists but could not be converted to AttendanceRecord")
+
+    fun fetchData() {
+        try {
+            // Assuming you still use the same date format for your documents
+
+
+            attendanceRef.document(getUserId())
+                .collection("Attendance")
+                .document(todayDate)
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        val record = documentSnapshot.toObject(AttendanceRecord::class.java)
+                        if (record != null) {
+                            data = record
+                            Log.d("TAG", "Data = ${data.date}, ${data.checkIn}")
+                        } else {
+                            Log.d("TAG", "Document exists but could not be converted to AttendanceRecord")
+                        }
+                    } else {
+                        // If the document does not exist, create a new one
+
+                        attendanceRef.document(getUserId())
+                            .collection("Attendance")
+                            .document(todayDate)
+                            .set(data)
+                            .addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    Log.d("TAG", "Document created successfully")
+                                } else {
+                                    Log.d("TAG", "Document creation unsuccessful")
+                                }
+                            }
+                            .addOnFailureListener {
+                                Log.e("TAG", "Document creation failed due to: ${it.message}", it)
+                            }
+                    }
                 }
-            } else {
-                attendanceRef.document(getUserId()).collection("Daily").document(todayDate).set(AttendanceRecord(date = todayDate)).addOnCompleteListener {
-                    if (it.isSuccessful)
-                        Log.d("TAG", "Check In successfully")
-                }.addOnFailureListener {
-                    Log.d("TAG", "Check In  Unsuccessfully due to ${it.cause}")
+                .addOnFailureListener { exception ->
+                    Log.e("TAG", "Could not fetch data due to: ${exception.message}", exception)
                 }
-            }
-        }.addOnFailureListener {
-            Log.d("TAG","Could not fetch data due to = ${it.cause}")
+        } catch (e: Exception) {
+            Log.e("TAG", "Error during data fetching: ${e.message}", e)
         }
     }
 
 
-    fun checkIn(today:AttendanceRecord) {
-            attendanceRef.document(getUserId()).collection("Daily").document(todayDate).set(today).addOnCompleteListener {
-                if (it.isSuccessful)
-                    Log.d("TAG", "Check In successfully")
-            }.addOnFailureListener {
-                Log.d("TAG", "Check In  Unsuccessfully due to ${it.cause}")
-            }
-   }
+    fun checkIn(today: AttendanceRecord) {
+        try {
 
-    @SuppressLint("SuspiciousIndentation")
-    fun checkOut(
-        outTime: String,
-        todayWorkTime: String,
-        status: String,
-        workedTime:String
-    ){
+
+            attendanceRef.document(getUserId())
+                .collection("Attendance")
+                .document(todayDate)
+                .set(today)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Log.d("TAG", "Check In successful")
+                    } else {
+                        Log.d("TAG", "Check In unsuccessful")
+                    }
+                }
+                .addOnFailureListener {
+                    Log.e("TAG", "Check In failed due to: ${it.message}", it)
+                }
+        } catch (e: Exception) {
+            Log.e("TAG", "Error during check-in: ${e.message}", e)
+        }
+    }
+
+fun checkOut(outTime: String, todayWorkTime: String, status: String, workedTime: String) {
+    try {
         val updated = hashMapOf(
             "checkOut" to outTime,
             "status" to status,
@@ -80,12 +110,42 @@ class AttendanceRecords() {
             "todayTime" to todayWorkTime,
         )
 
-        attendanceRef.document(getUserId()).collection("Daily").document(todayDate).update(updated as Map<String, Any>)
+        // Update checkout information in AttendanceRecords collection
+        attendanceRef.document(getUserId())
+            .collection("Attendance")
+            .document(todayDate)
+            .update(updated as Map<String, Any>)
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    Log.d("TAG", "Check Out successfully")
+                } else {
+                    Log.d("TAG", "Check Out unsuccessful")
+                }
+            }
+            .addOnFailureListener {
+                Log.e("TAG", "Check Out failed due to: ${it.message}", it)
+            }
 
-        // workedTime Update  Weekly wala
-        val up2 = hashMapOf("workedTime" to workedTime )
-        empRef.document(getUserId()).update(up2 as Map<String, Any>)
+        // Update worked time in the separate document (assuming a document structure for employees)
+        val workedTimeUpdate = hashMapOf("workedTime" to workedTime)
+        empRef.document(getUserId())
+            .update(workedTimeUpdate as Map<String, Any>)
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    Log.d("TAG", "Worked Time updated successfully")
+                } else {
+                    Log.d("TAG", "Worked Time update unsuccessful")
+                }
+            }
+            .addOnFailureListener {
+                Log.e("TAG", "Worked Time update failed due to: ${it.message}", it)
+            }
+    } catch (e: Exception) {
+        Log.e("TAG", "Error during check-out: ${e.message}", e)
     }
+}
+
+
     fun taskUpdate(tasks:String){
 
         val updated = hashMapOf(
@@ -93,8 +153,20 @@ class AttendanceRecords() {
             "action" to 3
         )
 
-        attendanceRef.document(getUserId()).collection("Daily").document(todayDate).update(updated as Map<String, Any>)
+        attendanceRef.document(getUserId())
+            .collection("Attendance")
+            .document(todayDate)
+            .update(updated as Map<String, Any>)
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    Log.d("TAG", "Check Out successfully")
+                } else {
+                    Log.d("TAG", "Check Out unsuccessful")
+                }
+            }
+            .addOnFailureListener {
+                Log.e("TAG", "Check Out failed due to: ${it.message}", it)
+            }
     }
-
 
 }

@@ -39,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.employattendance.AppUi.Employee.ViewModels.ActionViewModel
+import com.example.employattendance.AppUi.Employee.ViewModels.HistoryViewModel
+import com.example.employattendance.AppUi.Employee.ViewModels.ProfileViewModel
 import com.example.employattendance.Navigation.Screen
 import com.example.employattendance.R
 
@@ -86,6 +89,10 @@ fun EmployeeLogin(navController: NavHostController ){
     Log.d("TAG","IN Employee page")
 
 
+    val historyViewModel = HistoryViewModel()
+    val profileViewModel = ProfileViewModel()
+
+
     var selectedIndex by remember {
         mutableIntStateOf(0)
     }
@@ -99,50 +106,9 @@ fun EmployeeLogin(navController: NavHostController ){
     val auth = FirebaseAuth.getInstance()
 
     if(auth.currentUser?.isEmailVerified == true ) {
-//        Scaffold(Modifier.fillMaxSize(),
-//            bottomBar = {
-//                AnimatedNavigationBar(
-//                    Modifier
-//                        .height(60.dp)
-//                        .fillMaxWidth()
-//                        .size(410.dp, 50.dp),
-//                    selectedIndex = selectedIndex,
-//                    cornerRadius = shapeCornerRadius(cornerRadius = 24.dp),
-//                    ballAnimation = Parabolic(tween(300)),
-//                    indentAnimation = Height(tween(300)),
-//                    barColor = CustomWhite,
-//                    ballColor = Iris
-//                ) {
-//
-//                    screens.forEachIndexed { index, screen ->
-//                        Box(modifier = Modifier
-//                            .noRippleClickable {
-//                                if (selectedIndex != index)
-//                                    selectedIndex = index
-//                            }
-//                            .fillMaxSize(),
-//                            contentAlignment = Alignment.Center) {
-//                            Icon(
-//                                imageVector = if (selectedIndex == index
-//                                ) tabItems[index].selected else tabItems[index].unselected,
-//                                contentDescription = null,
-//                                Modifier.size(26.dp),
-//                                tint = if (selectedIndex == index) Iris else PrimaryBackGroundColor
-//                            )
-//                        }
-//                    }
-//                }
-//
-//            }) {
-//
-//
-//            when (screens[selectedIndex]) {
-//                is Screen.Action -> ActionPage()//actionViewModel)
-//                is Screen.History -> History()//historyViewModel)
-//                is Screen.Profile -> Profile(navController)//,profileViewModel)
-//                else -> {}
-//            }
-//        }
+
+
+
         Scaffold(
             Modifier.fillMaxSize(),
             bottomBar = {
@@ -175,8 +141,8 @@ fun EmployeeLogin(navController: NavHostController ){
         ) {
             when (screens[selectedIndex]) {
                 is Screen.Action -> ActionPage() //actionViewModel
-                is Screen.History -> History() //historyViewModel
-                is Screen.Profile -> Profile(navController) //profileViewModel
+                is Screen.History -> History(historyViewModel) //historyViewModel
+                is Screen.Profile -> Profile(navController,profileViewModel) //profileViewModel
                 else -> {}
             }
         }

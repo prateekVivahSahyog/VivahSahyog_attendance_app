@@ -50,9 +50,6 @@ class ActionViewModel(private val repository:AttendanceRecords = AttendanceRecor
     private val hasUser :Boolean
         get() = repository.hasUser()
 
-//    private val user: FirebaseUser?
-//        get() = repository.user
-
     private val formatter = DateTimeFormatter.ofPattern("h:mm a")
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat("dd-MM-yyyy")
@@ -111,11 +108,6 @@ class ActionViewModel(private val repository:AttendanceRecords = AttendanceRecor
 
             resetWeeksWorkingHoursIfNeeded()
             absent()
-//
-//            withContext(Dispatchers.Main) {
-//
-//
-//            }
 
             while (true) {
 
@@ -214,18 +206,19 @@ class ActionViewModel(private val repository:AttendanceRecords = AttendanceRecor
             empRef.document(getUserId()).update(updated as Map<String, Any>)
         }
 
-
     }
 
     fun tasks(value:String){
         repository.taskUpdate(value)
     }
 
-    private fun getMondayOfCurrentWeek(): LocalDate {
-        val currentDate = LocalDate.now()
-        val daysUntilMonday = (DayOfWeek.MONDAY.value - currentDate.dayOfWeek.value + 7) % 7
-        return currentDate.minusDays(daysUntilMonday.toLong())
-    }
+private fun getMondayOfCurrentWeek(): LocalDate {
+    val currentDate = LocalDate.now() // Gets the current date
+    val daysFromMonday = currentDate.dayOfWeek.value - DayOfWeek.MONDAY.value
+    val monday = if (daysFromMonday >= 0) currentDate.minusDays(daysFromMonday.toLong()) else currentDate.minusDays((daysFromMonday + 7).toLong())
+    return monday
+}
+
 
     suspend fun absent() {
         var daysAbsent = 0
@@ -234,25 +227,53 @@ class ActionViewModel(private val repository:AttendanceRecords = AttendanceRecor
         val mm = MMFormat.format(Date()).toInt()
         val yy = YYYYFormat.format(Date()).toInt()
 
-        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
+//        for (i in 1..dd) {
+//            val day = if (i < 10) "0$i" else dd
+//            val selectedDate = "$yy-$mm-$day"
+//            val date = LocalDate.parse(selectedDate, formatter)
+//
+//
+//
+//            // Exclude Saturdays and Sundays
+//            if (date.dayOfWeek != DayOfWeek.SATURDAY && date.dayOfWeek != DayOfWeek.SUNDAY) {
+//                Log.d("TAG","checking for $selectedDate")
+//                val attendanceDocRef = attendanceRef.document(getUserId()).collection("Attendance").document(selectedDate)
+//                val attendanceDocument = attendanceDocRef.get().await()
+//                val attendanceRecord = attendanceDocument?.toObject(AttendanceRecord::class.java)
+//
+//                if (attendanceRecord == null) {
+//                    daysAbsent++
+//                    Log.d("TAG","absent date = $selectedDate")
+//                }
+//            }
+//        }
         for (i in 1..dd) {
-            val day = if (i < 10) "0$i" else dd
-            val selectedDate = "$day-$mm-$yy"
+            val day = if (i < 10) "0$i" else i.toString()  // Fix: Use i.toString() instead of dd
+            val selectedDate = "$yy-$mm-$day"
+            Log.d("TAG", "checking for $selectedDate")  // Added log statement
             val date = LocalDate.parse(selectedDate, formatter)
 
             // Exclude Saturdays and Sundays
             if (date.dayOfWeek != DayOfWeek.SATURDAY && date.dayOfWeek != DayOfWeek.SUNDAY) {
-                val attendanceDocRef = attendanceRef.document(getUserId()).collection("Daily").document(selectedDate)
+                val attendanceDocRef = attendanceRef.document(getUserId()).collection("Attendance").document(selectedDate)
                 val attendanceDocument = attendanceDocRef.get().await()
                 val attendanceRecord = attendanceDocument?.toObject(AttendanceRecord::class.java)
 
-                if (attendanceRecord == null) {
+                if (attendanceRecord == null ) {
                     daysAbsent++
-                    Log.d("TAG","absent date = $selectedDate")
+                    Log.d("TAG", "absent date = $selectedDate")
+                }
+                else{
+                    if(attendanceRecord.status !="Present"){
+                        daysAbsent++
+                        Log.d("TAG", "absent date = $selectedDate")
+                    }
                 }
             }
         }
+
         Log.d("TAG","absent days = $daysAbsent")
 
         withContext(Dispatchers.Main) {
