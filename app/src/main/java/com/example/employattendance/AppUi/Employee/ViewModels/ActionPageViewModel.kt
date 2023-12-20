@@ -229,26 +229,6 @@ private fun getMondayOfCurrentWeek(): LocalDate {
 
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-//        for (i in 1..dd) {
-//            val day = if (i < 10) "0$i" else dd
-//            val selectedDate = "$yy-$mm-$day"
-//            val date = LocalDate.parse(selectedDate, formatter)
-//
-//
-//
-//            // Exclude Saturdays and Sundays
-//            if (date.dayOfWeek != DayOfWeek.SATURDAY && date.dayOfWeek != DayOfWeek.SUNDAY) {
-//                Log.d("TAG","checking for $selectedDate")
-//                val attendanceDocRef = attendanceRef.document(getUserId()).collection("Attendance").document(selectedDate)
-//                val attendanceDocument = attendanceDocRef.get().await()
-//                val attendanceRecord = attendanceDocument?.toObject(AttendanceRecord::class.java)
-//
-//                if (attendanceRecord == null) {
-//                    daysAbsent++
-//                    Log.d("TAG","absent date = $selectedDate")
-//                }
-//            }
-//        }
         for (i in 1..dd) {
             val day = if (i < 10) "0$i" else i.toString()  // Fix: Use i.toString() instead of dd
             val selectedDate = "$yy-$mm-$day"

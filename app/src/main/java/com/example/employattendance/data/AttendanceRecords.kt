@@ -28,7 +28,7 @@ class AttendanceRecords() {
     @SuppressLint("SimpleDateFormat")
     val todayDate = SimpleDateFormat("yyyy-MM-dd").format(Date())
 
-    var data : AttendanceRecord = AttendanceRecord("","", checkIn = "    --/--", checkOut = "    --/--" , todayTime = "0", status = "Absent", action = 0)
+    var data : AttendanceRecord = AttendanceRecord(todayDate,"", checkIn = "    --/--", checkOut = "    --/--" , todayTime = "0", status = "Absent", action = 0)
 
 
 

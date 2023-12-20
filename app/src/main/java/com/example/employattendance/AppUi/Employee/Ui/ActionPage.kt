@@ -64,12 +64,6 @@ fun ActionPage(actionViewModel: ActionViewModel = ActionViewModel()){
     var taskPerformed by remember { mutableStateOf("") }
     var taskInputStatus by remember { mutableStateOf(false) }
 
-//    LaunchedEffect(action){
-//        if(action ==2 ){
-//            taskInputStatus = true
-//        }
-//    }
-
 
     Column(Modifier.padding(horizontal = 7.dp),horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top) {

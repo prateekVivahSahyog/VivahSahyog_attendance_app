@@ -2,6 +2,7 @@ package com.example.employattendance.AppUi.Employee.Ui
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -9,7 +10,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
@@ -19,6 +23,9 @@ import androidx.compose.material.icons.filled.WorkHistory
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.WorkHistory
 import androidx.compose.material.icons.outlined.WorkOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -26,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,6 +64,7 @@ import com.example.employattendance.ui.theme.PrimaryBackGroundColor
 //import com.exyte.animatednavbar.animation.indendshape.shapeCornerRadius
 //import com.exyte.animatednavbar.utils.noRippleClickable
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 val tabItems = listOf(
     TabItem(
@@ -85,6 +95,9 @@ data class TabItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeLogin(navController: NavHostController ){
+
+    var varification by remember { mutableStateOf(true) }
+    val context = LocalContext.current
 
     Log.d("TAG","IN Employee page")
 
@@ -161,6 +174,24 @@ fun EmployeeLogin(navController: NavHostController ){
                     contentScale = ContentScale.Fit
                 )
                 Text("Email not Verified", fontSize = 20.sp, fontWeight = FontWeight.Medium)
+
+
+                Button(onClick = {
+                    varification = false
+                    Toast.makeText(context, "Sending verification", Toast.LENGTH_SHORT).show()
+                    auth.currentUser?.sendEmailVerification()?.addOnCompleteListener {
+
+                        Toast.makeText(context, "Verification Sent", Toast.LENGTH_SHORT).show()
+                    }?.addOnFailureListener {
+                        varification = true
+                    }
+                },Modifier.widthIn(320.dp).heightIn(55.dp),
+                    enabled = varification,
+                    shape = RoundedCornerShape(13.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(20, 143, 119 ))
+                ){
+                    Text("Send Email Verification")
+                }
             }
         }
     }
